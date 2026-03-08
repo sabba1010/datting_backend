@@ -6,22 +6,42 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
     age: {
         type: Number,
-        required: true
+        default: null
     },
     location: {
         type: String,
-        required: true
+        default: ''
     },
     gender: {
         type: String,
-        enum: ['man', 'woman'],
-        required: true
+        enum: ['man', 'woman', ''],
+        default: ''
+    },
+    lookingFor: {
+        type: String,
+        enum: ['man', 'woman', ''],
+        default: ''
+    },
+    ageRange: {
+        type: String,
+        default: ''
     },
     photo: {
         type: String,
-        default: 'https://via.placeholder.com/150'
+        default: ''
     },
     bio: {
         type: String,

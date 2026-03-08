@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, getMatches } = require('../controllers/userController');
+const { updateProfile, getMatches, getMe } = require('../controllers/userController');
+const { protect } = require('../middleware/authMiddleware');
 
-// Registration route
-router.post('/register', registerUser);
-
-// Matching route
-router.get('/matches', getMatches);
+router.get('/me', protect, getMe);
+router.patch('/me', protect, updateProfile);
+router.get('/matches', protect, getMatches);
 
 module.exports = router;
