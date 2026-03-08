@@ -14,7 +14,20 @@ const updateProfile = async (req, res) => {
         if (age !== undefined) updates.age = age;
 
         const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
-        res.json({ success: true, user });
+
+        // Return consistent user object
+        const userResponse = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            gender: user.gender,
+            lookingFor: user.lookingFor,
+            photo: user.photo,
+            age: user.age,
+            location: user.location,
+            ageRange: user.ageRange,
+        };
+        res.json({ success: true, user: userResponse });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error updating profile', error: err.message });
     }
