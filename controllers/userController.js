@@ -3,8 +3,9 @@ const User = require('../models/User');
 // Update own profile/setup (called after MatchSetup)
 const updateProfile = async (req, res) => {
     try {
-        const { gender, lookingFor, ageRange, location, photo, bio, age } = req.body;
+        const { name, gender, lookingFor, ageRange, location, photo, bio, age } = req.body;
         const updates = {};
+        if (name !== undefined) updates.name = name;
         if (gender !== undefined) updates.gender = gender;
         if (lookingFor !== undefined) updates.lookingFor = lookingFor;
         if (ageRange !== undefined) updates.ageRange = ageRange;
