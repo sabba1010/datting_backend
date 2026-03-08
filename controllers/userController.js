@@ -28,13 +28,19 @@ const getMatches = async (req, res) => {
             return res.json({ success: true, count: 0, matches: [] });
         }
 
-        // Parse requested age range
-        const ageRange = req.query.ageRange || currentUser.ageRange || '';
+        // Parse requested age range robustly using regex to avoid encoding issues with dashes
+        const ageRangeStr = req.query.ageRange || currentUser.ageRange || '';
         let minAge = 18, maxAge = 100;
-        if (ageRange === '18–25' || ageRange === '18-25') { minAge = 18; maxAge = 25; }
-        else if (ageRange === '25–35' || ageRange === '25-35') { minAge = 25; maxAge = 35; }
-        else if (ageRange === '35–45' || ageRange === '35-45') { minAge = 35; maxAge = 45; }
-        else if (ageRange === '45+') { minAge = 45; maxAge = 100; }
+
+        const ageMatches = ageRangeStr.match(/(\d+)\D+(\d+)?/);
+        if (ageMatches) {
+            minAge = parseInt(ageMatches[1], 10);
+            if (ageMatches[2]) {
+                maxAge = parseInt(ageMatches[2], 10);
+            } else if (ageRangeStr.includes('+')) {
+                maxAge = 100; // Case for "45+"
+            }
+        }
 
         const query = {
             _id: { $ne: currentUser._id },  // exclude self
@@ -42,7 +48,11 @@ const getMatches = async (req, res) => {
         };
 
         if (minAge > 18 || maxAge < 100) {
-            query.age = { $gte: minAge, $lte: maxAge };
+            query.$or = [
+                { age: { $gte: minAge, $lte: maxAge } },
+                { age: null },
+                { age: { $exists: false } }
+            ];
         }
 
         const matches = await User.find(query).select('-password');
