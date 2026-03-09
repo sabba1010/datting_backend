@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const API = 'https://datting-backend.vercel.app/api';
+const API = 'http://localhost:5000/api';
 
 async function testMessages() {
     try {
