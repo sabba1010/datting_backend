@@ -83,6 +83,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/seed', require('./routes/seedRoutes'));
 
 // Test routendpoint
 app.get('/', (req, res) => {

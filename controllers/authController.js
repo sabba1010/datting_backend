@@ -45,6 +45,11 @@ const register = async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
+                email: user.email,
+                gender: user.gender,
+                lookingFor: user.lookingFor,
+                photo: user.photo,
+                age: user.age,
                 location: user.location,
                 ageRange: user.ageRange,
                 plan: user.plan,
