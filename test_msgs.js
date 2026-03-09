@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const API = 'http://localhost:5000/api';
+const API = 'https://datting-backend-3.onrender.com/api';
 
 async function testMessages() {
     try {
