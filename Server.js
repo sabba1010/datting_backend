@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const exampleRoutes = require('./routes/exampleRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const planRoutes = require('./routes/planRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -79,6 +80,7 @@ app.use('/api/example', exampleRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/plans', planRoutes);
 
 // Test routendpoint
 app.get('/', (req, res) => {

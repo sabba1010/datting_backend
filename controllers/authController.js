@@ -23,7 +23,18 @@ const register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = await User.create({ name, email, password: hashedPassword, age });
+        // Assign default Free plan
+        const Plan = require('../models/Plan');
+        const freePlan = await Plan.findOne({ name: 'Free Registration' });
+
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            age,
+            plan: freePlan ? freePlan._id : null,
+            subscriptionStatus: freePlan ? 'active' : 'none'
+        });
 
         const token = generateToken(user._id);
 
@@ -41,6 +52,7 @@ const register = async (req, res) => {
                 age: user.age,
                 location: user.location,
                 ageRange: user.ageRange,
+                plan: user.plan
             }
         });
     } catch (err) {
@@ -83,6 +95,7 @@ const login = async (req, res) => {
                 age: user.age,
                 location: user.location,
                 ageRange: user.ageRange,
+                plan: user.plan
             }
         });
     } catch (err) {

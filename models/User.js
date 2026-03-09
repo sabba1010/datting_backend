@@ -46,6 +46,20 @@ const userSchema = new mongoose.Schema({
     bio: {
         type: String,
         default: ''
+    },
+    plan: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Plan',
+        default: null
+    },
+    subscriptionStatus: {
+        type: String,
+        enum: ['active', 'expired', 'none'],
+        default: 'none'
+    },
+    subscriptionExpiry: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 
