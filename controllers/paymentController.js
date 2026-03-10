@@ -5,7 +5,12 @@ const User = require('../models/User');
 // Configure PayPal environment
 const clientId = process.env.PAYPAL_CLIENT_ID;
 const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
+const mode = process.env.PAYPAL_MODE || 'sandbox';
+
+const environment = mode === 'live'
+    ? new paypal.core.LiveEnvironment(clientId, clientSecret)
+    : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+
 const client = new paypal.core.PayPalHttpClient(environment);
 
 const createOrder = async (req, res) => {
@@ -35,6 +40,8 @@ const createOrder = async (req, res) => {
         res.json({ success: true, orderId: order.result.id });
     } catch (err) {
         console.error('PayPal create order error:', err);
+        if (err.statusCode) console.error('Status Code:', err.statusCode);
+        if (err.message) console.error('Message:', err.message);
         res.status(500).json({ success: false, message: 'Could not create PayPal order', error: err.message });
     }
 };
