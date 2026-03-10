@@ -57,16 +57,46 @@ const getMatches = async (req, res) => {
         }
 
         const query = {
-            _id: { $ne: currentUser._id },  // exclude self
-            gender: currentUser.lookingFor,   // match gender the user is looking for
+            _id: { $ne: currentUser._id }, // exclude self
         };
 
-        if (minAge > 18 || maxAge < 100) {
+        // Filter by gender the current user is looking for
+        if (currentUser.lookingFor !== 'everyone') {
+            query.gender = currentUser.lookingFor;
+        }
+
+        // BI-DIRECTIONAL MATCHING:
+        // Only show users who are looking for the current user's gender OR everyone
+        if (currentUser.gender) {
             query.$or = [
-                { age: { $gte: minAge, $lte: maxAge } },
-                { age: null },
-                { age: { $exists: false } }
+                { lookingFor: currentUser.gender },
+                { lookingFor: 'everyone' },
+                { lookingFor: '' }, // handle legacy/unset
+                { lookingFor: { $exists: false } }
             ];
+        }
+
+        if (minAge > 18 || maxAge < 100) {
+            const ageQuery = {
+                $or: [
+                    { age: { $gte: minAge, $lte: maxAge } },
+                    { age: null },
+                    { age: { $exists: false } }
+                ]
+            };
+
+            // Merge ageQuery with the existing query
+            if (query.$or) {
+                // If query already has $or, we use $and to join them
+                const originalOr = query.$or;
+                delete query.$or;
+                query.$and = [
+                    { $or: originalOr },
+                    ageQuery
+                ];
+            } else {
+                query.$or = ageQuery.$or;
+            }
         }
 
         const matches = await User.find(query).select('-password');

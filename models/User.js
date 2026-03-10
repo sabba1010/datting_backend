@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     },
     lookingFor: {
         type: String,
-        enum: ['man', 'woman', ''],
+        enum: ['man', 'woman', 'everyone', ''],
         default: ''
     },
     ageRange: {
