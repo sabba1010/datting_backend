@@ -1,10 +1,87 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const generateToken = (userId) => {
     const secret = process.env.JWT_SECRET || 'your_fallback_secret_key_123';
     return jwt.sign({ id: userId }, secret, { expiresIn: '7d' });
+};
+
+// Change Password (LOGGED IN)
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user._id);
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Mot de passe actuel incorrect.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.json({ success: true, message: 'Mot de passe mis à jour avec succès !' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur lors du changement de mot de passe', error: err.message });
+    }
+};
+
+// Forgot Password (PUBLIC)
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Aucun utilisateur trouvé avec cet email.' });
+        }
+
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+        await user.save();
+
+        // In a real app, send actual email. For now, we'll return the token or just a success message.
+        // The user asked for the option, so I'll implement the logic.
+        console.log(`[AUTH] Reset Link: http://localhost:8080/reset-password/${resetToken}`);
+
+        res.json({
+            success: true,
+            message: 'Un lien de réinitialisation a été envoyé (vérifiez la console du serveur).',
+            // Return token for development/demo purposes if no email setup
+            debugToken: resetToken
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur forgot password', error: err.message });
+    }
+};
+
+// Reset Password (PUBLIC)
+const resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Le jeton de réinitialisation est invalide ou a expiré.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ success: true, message: 'Votre mot de passe a été réinitialisé !' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur reset password', error: err.message });
+    }
 };
 
 // Register
@@ -106,4 +183,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+module.exports = { register, login, changePassword, forgotPassword, resetPassword };
