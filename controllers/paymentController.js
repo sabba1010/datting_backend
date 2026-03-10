@@ -2,16 +2,27 @@ const paypal = require('@paypal/checkout-server-sdk');
 const Plan = require('../models/Plan');
 const User = require('../models/User');
 
-// Configure PayPal environment
-const clientId = process.env.PAYPAL_CLIENT_ID;
-const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-const mode = process.env.PAYPAL_MODE || 'sandbox';
+// Helper to get PayPal client (initializes once)
+let _paypalClient = null;
+const getPaypalClient = () => {
+    if (_paypalClient) return _paypalClient;
 
-const environment = mode === 'live'
-    ? new paypal.core.LiveEnvironment(clientId, clientSecret)
-    : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+    const clientId = process.env.PAYPAL_CLIENT_ID;
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+    const mode = process.env.PAYPAL_MODE || 'sandbox';
 
-const client = new paypal.core.PayPalHttpClient(environment);
+    if (!clientId || !clientSecret) {
+        console.error('[PayPal] CRITICAL ERROR: PAYPAL_CLIENT_ID or PAYPAL_CLIENT_SECRET not found in environment!');
+    }
+
+    const environment = mode === 'live'
+        ? new paypal.core.LiveEnvironment(clientId, clientSecret)
+        : new paypal.core.SandboxEnvironment(clientId, clientSecret);
+
+    _paypalClient = new paypal.core.PayPalHttpClient(environment);
+    console.log(`[PayPal] SDK initialized in ${mode} environment`);
+    return _paypalClient;
+};
 
 const createOrder = async (req, res) => {
     try {
@@ -36,13 +47,26 @@ const createOrder = async (req, res) => {
             }]
         });
 
+        const client = getPaypalClient();
         const order = await client.execute(request);
-        res.json({ success: true, orderId: order.result.id });
+        console.log(`[PayPal] Order created successfully: ${order.result.id}`);
+        res.json({ success: true, id: order.result.id });
     } catch (err) {
-        console.error('PayPal create order error:', err);
-        if (err.statusCode) console.error('Status Code:', err.statusCode);
-        if (err.message) console.error('Message:', err.message);
-        res.status(500).json({ success: false, message: 'Could not create PayPal order', error: err.message });
+        console.error('[PayPal] Create order error:', err);
+        let errorMessage = 'Could not create PayPal order';
+
+        if (err.message) {
+            try {
+                const details = JSON.parse(err.message);
+                console.error('[PayPal] Error Details:', JSON.stringify(details, null, 2));
+                if (details.message) errorMessage += `: ${details.message}`;
+            } catch (e) {
+                console.error('[PayPal] Error Message:', err.message);
+                errorMessage += `: ${err.message}`;
+            }
+        }
+
+        res.status(500).json({ success: false, message: errorMessage, error: err.message });
     }
 };
 
@@ -54,6 +78,7 @@ const captureOrder = async (req, res) => {
         const request = new paypal.orders.OrdersCaptureRequest(orderId);
         request.requestBody({});
 
+        const client = getPaypalClient();
         const capture = await client.execute(request);
 
         if (capture.result.status === 'COMPLETED') {

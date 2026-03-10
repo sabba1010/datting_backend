@@ -1,8 +1,11 @@
+const dotenv = require('dotenv');
+// Load environment variables immediately
+dotenv.config();
+
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 
 const authRoutes = require('./routes/authRoutes');
@@ -12,9 +15,6 @@ const messageRoutes = require('./routes/messageRoutes');
 const planRoutes = require('./routes/planRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -84,6 +84,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/paypal', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/seed', require('./routes/seedRoutes'));
 
