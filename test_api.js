@@ -1,5 +1,5 @@
 async function runTests() {
-    const BASE = 'http://localhost:5000/api';
+    const BASE = 'https://datting-backend.vercel.app/api';
     const timestamp = Date.now();
     const email = `test${timestamp}@test.com`;
 
