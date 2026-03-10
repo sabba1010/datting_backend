@@ -11,6 +11,7 @@ const client = new paypal.core.PayPalHttpClient(environment);
 const createOrder = async (req, res) => {
     try {
         const { planId } = req.body;
+        console.log(`[PayPal] Attempting to create order for planId: ${planId}`);
         const plan = await Plan.findById(planId);
 
         if (!plan) {
