@@ -46,7 +46,7 @@ const forgotPassword = async (req, res) => {
 
         // In a real app, send actual email. For now, we'll return the token or just a success message.
         // The user asked for the option, so I'll implement the logic.
-        console.log(`[AUTH] Reset Link: http://localhost:8080/reset-password/${resetToken}`);
+        console.log(`[AUTH] Reset Link: https://amour-et-sincerite.com//reset-password/${resetToken}`);
 
         res.json({
             success: true,
