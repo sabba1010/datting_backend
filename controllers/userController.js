@@ -6,7 +6,8 @@ const updateProfile = async (req, res) => {
         const { 
             name, gender, lookingFor, ageRange, location, photo, photos, bio, age,
             hobbies, favoriteActivities, zodiacSign, religion, children,
-            height, weight, eyeColor, hairColor, smoke, alcohol
+            height, weight, eyeColor, hairColor, smoke, alcohol,
+            locationCoords, country, department, city
         } = req.body;
         const updates = {};
         if (name !== undefined) updates.name = name;
@@ -32,6 +33,12 @@ const updateProfile = async (req, res) => {
         if (smoke !== undefined) updates.smoke = smoke;
         if (alcohol !== undefined) updates.alcohol = alcohol;
 
+        // Location fields
+        if (locationCoords !== undefined) updates.locationCoords = locationCoords;
+        if (country !== undefined) updates.country = country;
+        if (department !== undefined) updates.department = department;
+        if (city !== undefined) updates.city = city;
+
         const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
 
         // Return consistent user object
@@ -56,7 +63,11 @@ const updateProfile = async (req, res) => {
             eyeColor: user.eyeColor,
             hairColor: user.hairColor,
             smoke: user.smoke,
-            alcohol: user.alcohol
+            alcohol: user.alcohol,
+            locationCoords: user.locationCoords,
+            country: user.country,
+            department: user.department,
+            city: user.city
         };
         res.json({ success: true, user: userResponse });
     } catch (err) {
@@ -67,9 +78,32 @@ const updateProfile = async (req, res) => {
 // Get real matches from DB
 const getMatches = async (req, res) => {
     try {
-        const currentUser = req.user;
-        if (!currentUser.lookingFor) {
-            return res.json({ success: true, count: 0, matches: [] });
+        const currentUser = await User.findById(req.user._id);
+        const { radius, lat, lng, searchLevel, filterCountry, filterDept } = req.query;
+
+        let query = {
+            _id: { $ne: req.user._id },
+        };
+
+        // Gender matching
+        if (currentUser.lookingFor === 'man') query.gender = 'man';
+        else if (currentUser.lookingFor === 'woman') query.gender = 'woman';
+
+        // Geospatial search
+        if (radius && lat && lng) {
+            query.locationCoords = {
+                $near: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
+                    },
+                    $maxDistance: parseInt(radius) * 1000 // km to meters
+                }
+            };
+        } else if (searchLevel === 'country' && (filterCountry || currentUser.country)) {
+            query.country = filterCountry || currentUser.country;
+        } else if (searchLevel === 'department' && (filterDept || currentUser.department)) {
+            query.department = filterDept || currentUser.department;
         }
 
         // Parse requested age range robustly using regex to avoid encoding issues with dashes
@@ -85,10 +119,6 @@ const getMatches = async (req, res) => {
                 maxAge = 100; // Case for "45+"
             }
         }
-
-        const query = {
-            _id: { $ne: currentUser._id }, // exclude self
-        };
 
         // Filter by gender the current user is looking for
         if (currentUser.lookingFor !== 'everyone') {

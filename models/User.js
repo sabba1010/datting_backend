@@ -25,6 +25,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    locationCoords: {
+        type: { type: String, default: 'Point' },
+        coordinates: { type: [Number], default: [0, 0] }
+    },
+    country: { type: String, default: '' },
+    department: { type: String, default: '' },
+    city: { type: String, default: '' },
     gender: {
         type: String,
         enum: ['man', 'woman', ''],
@@ -84,5 +91,7 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpires: Date
 }, { timestamps: true });
+
+userSchema.index({ locationCoords: '2dsphere' });
 
 module.exports = mongoose.model('User', userSchema);
