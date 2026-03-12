@@ -51,6 +51,17 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    hobbies: { type: String, default: '' },
+    favoriteActivities: { type: String, default: '' },
+    zodiacSign: { type: String, default: '' },
+    religion: { type: String, default: '' },
+    children: { type: String, default: '' },
+    height: { type: String, default: '' },
+    weight: { type: String, default: '' },
+    eyeColor: { type: String, default: '' },
+    hairColor: { type: String, default: '' },
+    smoke: { type: String, default: '' },
+    alcohol: { type: String, default: '' },
     plan: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Plan',
