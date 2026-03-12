@@ -3,7 +3,7 @@ const User = require('../models/User');
 // Update own profile/setup (called after MatchSetup)
 const updateProfile = async (req, res) => {
     try {
-        const { name, gender, lookingFor, ageRange, location, photo, bio, age } = req.body;
+        const { name, gender, lookingFor, ageRange, location, photo, photos, bio, age } = req.body;
         const updates = {};
         if (name !== undefined) updates.name = name;
         if (gender !== undefined) updates.gender = gender;
@@ -11,6 +11,7 @@ const updateProfile = async (req, res) => {
         if (ageRange !== undefined) updates.ageRange = ageRange;
         if (location !== undefined) updates.location = location;
         if (photo !== undefined) updates.photo = photo;
+        if (photos !== undefined) updates.photos = photos;
         if (bio !== undefined) updates.bio = bio;
         if (age !== undefined) updates.age = age;
 
@@ -24,6 +25,7 @@ const updateProfile = async (req, res) => {
             gender: user.gender,
             lookingFor: user.lookingFor,
             photo: user.photo,
+            photos: user.photos || [],
             age: user.age,
             location: user.location,
             ageRange: user.ageRange,
@@ -114,6 +116,7 @@ const getMatches = async (req, res) => {
                 location: u.location,
                 gender: u.gender,
                 photo: u.photo,
+                photos: u.photos || [],
                 bio: u.bio,
                 matchPercent: Math.min(score, 99),
             };
