@@ -95,7 +95,8 @@ const getMatches = async (req, res) => {
         const currentUser = await User.findById(req.user._id);
         const { 
             radius, lat, lng, searchLevel, filterCountry, filterDept,
-            smoke, alcohol, children, religion, zodiacSign, minHeight, maxHeight
+            smoke, alcohol, children, religion, zodiacSign, minHeight, maxHeight,
+            ageMin, ageMax, eyeColor, hairColor, keyword
         } = req.query;
 
         // Exclude users already liked, passed or already matched
@@ -122,6 +123,16 @@ const getMatches = async (req, res) => {
             if (minHeight) query.height.$gte = minHeight;
             if (maxHeight) query.height.$lte = maxHeight;
         }
+        
+        if (eyeColor) query.eyeColor = eyeColor;
+        if (hairColor) query.hairColor = hairColor;
+        if (keyword) {
+            query.$or = [
+                { hobbies: { $regex: keyword, $options: 'i' } },
+                { favoriteActivities: { $regex: keyword, $options: 'i' } },
+                { bio: { $regex: keyword, $options: 'i' } }
+            ];
+        }
 
         // Gender matching
         if (currentUser.lookingFor === 'man') query.gender = 'man';
@@ -144,17 +155,20 @@ const getMatches = async (req, res) => {
             query.department = filterDept || currentUser.department;
         }
 
-        // Parse requested age range robustly using regex to avoid encoding issues with dashes
+        // Parse requested age range robustly
         const ageRangeStr = req.query.ageRange || currentUser.ageRange || '';
-        let minAge = 18, maxAge = 100;
+        let minAge = parseInt(ageMin) || 18;
+        let maxAge = parseInt(ageMax) || 100;
 
-        const ageMatches = ageRangeStr.match(/(\d+)\D+(\d+)?/);
-        if (ageMatches) {
-            minAge = parseInt(ageMatches[1], 10);
-            if (ageMatches[2]) {
-                maxAge = parseInt(ageMatches[2], 10);
-            } else if (ageRangeStr.includes('+')) {
-                maxAge = 100; // Case for "45+"
+        if (!ageMin && !ageMax) {
+            const ageMatches = ageRangeStr.match(/(\d+)\D+(\d+)?/);
+            if (ageMatches) {
+                minAge = parseInt(ageMatches[1], 10);
+                if (ageMatches[2]) {
+                    maxAge = parseInt(ageMatches[2], 10);
+                } else if (ageRangeStr.includes('+')) {
+                    maxAge = 100; // Case for "45+"
+                }
             }
         }
 
