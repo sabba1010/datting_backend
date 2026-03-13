@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        default: false
+        default: true
     },
     verificationToken: String,
     password: {
@@ -94,7 +94,11 @@ const userSchema = new mongoose.Schema({
         default: 'user'
     },
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    matches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    passed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 userSchema.index({ locationCoords: '2dsphere' });

@@ -135,20 +135,28 @@ const register = async (req, res) => {
             age,
             plan: freePlan ? freePlan._id : null,
             subscriptionStatus: freePlan ? 'active' : 'none',
+            isVerified: true, // Verification disabled
             verificationToken
         });
 
-        // Send email (async)
-        sendVerificationEmail(user.email, verificationToken);
+        // Send email (async) - DISABLED
+        // sendVerificationEmail(user.email, verificationToken);
+
+        // Generate token for auto-login
+        const token = generateToken(user._id);
 
         res.status(201).json({
             success: true,
-            message: 'Compte créé ! Veuillez vérifier votre email pour activer votre compte.',
+            message: 'Compte créé avec succès !',
+            token,
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                isVerified: user.isVerified
+                isVerified: user.isVerified,
+                age: user.age,
+                gender: user.gender,
+                plan: user.plan
             }
         });
     } catch (err) {
@@ -175,9 +183,9 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials.' });
         }
 
-        if (!user.isVerified) {
-            return res.status(403).json({ success: false, message: 'Veuillez vérifier votre email avant de vous connecter.' });
-        }
+        // if (!user.isVerified) {
+        //     return res.status(403).json({ success: false, message: 'Veuillez vérifier votre email avant de vous connecter.' });
+        // }
 
         const token = generateToken(user._id);
 

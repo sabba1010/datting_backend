@@ -24,6 +24,7 @@ const testRegister = async () => {
         });
 
         console.log('User created:', user.name, user.email);
+        console.log('Is Verified:', user.isVerified);
         console.log('Assigned Plan ID:', user.plan);
         console.log('Subscription Status:', user.subscriptionStatus);
 
