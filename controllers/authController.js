@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { sendVerificationEmail } = require('../utils/emailUtils');
 
 const generateToken = (userId) => {
     const secret = process.env.JWT_SECRET || 'your_fallback_secret_key_123';
@@ -84,6 +85,26 @@ const resetPassword = async (req, res) => {
     }
 };
 
+// Verify Email
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Le jeton de vérification est invalide.' });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.json({ success: true, message: 'Votre email a été vérifié avec succès ! Vous pouvez maintenant vous connecter.' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur verification email', error: err.message });
+    }
+};
+
 // Register
 const register = async (req, res) => {
     try {
@@ -105,33 +126,29 @@ const register = async (req, res) => {
         const Plan = require('../models/Plan');
         const freePlan = await Plan.findOne({ name: 'Free Registration' });
 
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+
         const user = await User.create({
             name,
             email,
             password: hashedPassword,
             age,
             plan: freePlan ? freePlan._id : null,
-            subscriptionStatus: freePlan ? 'active' : 'none'
+            subscriptionStatus: freePlan ? 'active' : 'none',
+            verificationToken
         });
 
-        const token = generateToken(user._id);
+        // Send email (async)
+        sendVerificationEmail(user.email, verificationToken);
 
         res.status(201).json({
             success: true,
-            message: 'Account created successfully!',
-            token,
+            message: 'Compte créé ! Veuillez vérifier votre email pour activer votre compte.',
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                gender: user.gender,
-                lookingFor: user.lookingFor,
-                photo: user.photo,
-                age: user.age,
-                location: user.location,
-                ageRange: user.ageRange,
-                plan: user.plan,
-                role: user.role
+                isVerified: user.isVerified
             }
         });
     } catch (err) {
@@ -156,6 +173,10 @@ const login = async (req, res) => {
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
             return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(403).json({ success: false, message: 'Veuillez vérifier votre email avant de vous connecter.' });
         }
 
         const token = generateToken(user._id);
@@ -183,4 +204,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login, changePassword, forgotPassword, resetPassword };
+module.exports = { register, login, changePassword, forgotPassword, resetPassword, verifyEmail };
