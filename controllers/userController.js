@@ -350,4 +350,40 @@ const getMatchesAndLikes = async (req, res) => {
     }
 };
 
-module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes };
+// Get a specific user's public profile by ID
+const getPublicProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+        }
+
+        const publicData = {
+            id: user._id,
+            name: user.name,
+            age: user.age,
+            location: user.location,
+            gender: user.gender,
+            photo: user.photo,
+            photos: user.photos || [],
+            bio: user.bio,
+            hobbies: user.hobbies,
+            favoriteActivities: user.favoriteActivities,
+            zodiacSign: user.zodiacSign,
+            religion: user.religion,
+            children: user.children,
+            height: user.height,
+            weight: user.weight,
+            eyeColor: user.eyeColor,
+            hairColor: user.hairColor,
+            smoke: user.smoke,
+            alcohol: user.alcohol,
+        };
+
+        res.json({ success: true, user: publicData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Erreur lors de la récupération du profil", error: err.message });
+    }
+};
+
+module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes, getPublicProfile };
