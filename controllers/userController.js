@@ -338,12 +338,14 @@ const getMatchesAndLikes = async (req, res) => {
     try {
         const user = await User.findById(req.user._id)
             .populate('matches', 'name photo bio age location gender')
-            .populate('likedBy', 'name photo bio age location gender');
+            .populate('likedBy', 'name photo bio age location gender')
+            .populate('likes', 'name photo bio age location gender');
 
         res.json({
             success: true,
             matches: user.matches,
-            likedBy: user.likedBy
+            likedBy: user.likedBy,
+            likesSent: user.likes
         });
     } catch (err) {
         res.status(500).json({ success: false, message: "Erreur lors de la récupération des affinités", error: err.message });
