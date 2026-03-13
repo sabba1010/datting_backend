@@ -1,11 +1,11 @@
 const fetch = require('node-fetch');
 
 async function testFullFlow() {
-    const API = "http://localhost:5000/api";
+    const API = "https://amour-et-sincerite.com/api/api";
     const timestamp = Date.now();
     const email = `flow_test_${timestamp}@example.com`;
     const password = "password123";
-    
+
     try {
         console.log('--- 1. REGISTER ---');
         const regRes = await fetch(`${API}/auth/register`, {

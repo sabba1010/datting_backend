@@ -1,12 +1,12 @@
 const fetch = require('node-fetch');
 
 async function testRegistration() {
-    const API = "http://localhost:5000/api";
+    const API = "https://amour-et-sincerite.com/api/api";
     const timestamp = Date.now();
     const email = `test_bug_${timestamp}@example.com`;
-    
+
     console.log(`Attempting to register: ${email}`);
-    
+
     try {
         const response = await fetch(`${API}/auth/register`, {
             method: 'POST',
@@ -18,11 +18,11 @@ async function testRegistration() {
                 age: 25
             })
         });
-        
+
         const data = await response.json();
         console.log('Status:', response.status);
         console.log('Response:', JSON.stringify(data, null, 2));
-        
+
         if (response.status === 201 && data.success) {
             console.log('Registration SUCCESSFUL');
         } else {
