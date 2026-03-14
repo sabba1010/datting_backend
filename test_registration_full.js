@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 async function testRegistration() {
-    const API = "https://amour-et-sincerite.com/api/api";
+    const API = "http://localhost:5000/api";
     const timestamp = Date.now();
     const email = `test_bug_${timestamp}@example.com`;
 

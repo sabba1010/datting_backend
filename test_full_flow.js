@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 async function testFullFlow() {
-    const API = "https://amour-et-sincerite.com/api/api";
+    const API = "http://localhost:5000/api";
     const timestamp = Date.now();
     const email = `flow_test_${timestamp}@example.com`;
     const password = "password123";
