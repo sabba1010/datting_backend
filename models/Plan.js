@@ -23,6 +23,11 @@ const planSchema = new mongoose.Schema({
     features: [{
         type: String
     }],
+    tier: {
+        type: String,
+        enum: ['Free', 'Essentiel', 'Premium', 'Prestige'],
+        default: 'Free'
+    },
     priority: {
         type: Number,
         default: 0

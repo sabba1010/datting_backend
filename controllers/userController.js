@@ -111,27 +111,31 @@ const getMatches = async (req, res) => {
             _id: { $nin: seenUsers },
         };
 
-        // Advanced Filters
-        if (smoke) query.smoke = smoke;
-        if (alcohol) query.alcohol = alcohol;
-        if (children) query.children = children;
-        if (religion) query.religion = religion;
-        if (zodiacSign) query.zodiacSign = zodiacSign;
+        // Advanced Filters (Only Premium and Prestige)
+        const canUseAdvancedFilters = ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
         
-        if (minHeight || maxHeight) {
-            query.height = {};
-            if (minHeight) query.height.$gte = minHeight;
-            if (maxHeight) query.height.$lte = maxHeight;
-        }
-        
-        if (eyeColor) query.eyeColor = eyeColor;
-        if (hairColor) query.hairColor = hairColor;
-        if (keyword) {
-            query.$or = [
-                { hobbies: { $regex: keyword, $options: 'i' } },
-                { favoriteActivities: { $regex: keyword, $options: 'i' } },
-                { bio: { $regex: keyword, $options: 'i' } }
-            ];
+        if (canUseAdvancedFilters) {
+            if (smoke) query.smoke = smoke;
+            if (alcohol) query.alcohol = alcohol;
+            if (children) query.children = children;
+            if (religion) query.religion = religion;
+            if (zodiacSign) query.zodiacSign = zodiacSign;
+            
+            if (minHeight || maxHeight) {
+                query.height = {};
+                if (minHeight) query.height.$gte = minHeight;
+                if (maxHeight) query.height.$lte = maxHeight;
+            }
+            
+            if (eyeColor) query.eyeColor = eyeColor;
+            if (hairColor) query.hairColor = hairColor;
+            if (keyword) {
+                query.$or = [
+                    { hobbies: { $regex: keyword, $options: 'i' } },
+                    { favoriteActivities: { $regex: keyword, $options: 'i' } },
+                    { bio: { $regex: keyword, $options: 'i' } }
+                ];
+            }
         }
 
         // Gender matching
@@ -212,7 +216,7 @@ const getMatches = async (req, res) => {
             ];
         }
 
-        const matches = await User.find(query).select('-password');
+        const matches = await User.find(query).select('-password').populate('plan');
 
         // Improved Match Percentage Calculation (The "Perfect" Algorithm)
         const matchesWithPercent = matches.map(u => {
@@ -247,6 +251,12 @@ const getMatches = async (req, res) => {
             if (u.religion === currentUser.religion && u.religion) score += 5;
 
             // Cap the score
+            
+            // Priority Bonus for Prestige plan
+            if (u.plan?.tier === 'Prestige') {
+                score += 20;
+            }
+
             return {
                 id: u._id,
                 name: u.name,
@@ -358,10 +368,15 @@ const getMatchesAndLikes = async (req, res) => {
             .populate('likedBy', 'name photo bio age location gender')
             .populate('likes', 'name photo bio age location gender');
 
+        // Free users cannot see who liked them
+        const canSeeLikes = user.plan?.tier !== 'Free';
+        const likedByData = canSeeLikes ? user.likedBy : [];
+
         res.json({
             success: true,
             matches: user.matches,
-            likedBy: user.likedBy,
+            likedBy: likedByData,
+            likedByCount: user.likedBy.length,
             likesSent: user.likes
         });
     } catch (err) {
@@ -372,9 +387,32 @@ const getMatchesAndLikes = async (req, res) => {
 // Get a specific user's public profile by ID
 const getPublicProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select('-password');
+        const targetId = req.params.id;
+        const currentUserId = req.user._id;
+
+        const user = await User.findById(targetId).select('-password');
         if (!user) {
             return res.status(404).json({ success: false, message: "Utilisateur non trouvé" });
+        }
+
+        // Record visit if not the same user
+        if (currentUserId.toString() !== targetId.toString()) {
+            // Find if already visited recently
+            const alreadyVisited = user.profileVisitors.find(
+                v => v.visitor.toString() === currentUserId.toString()
+            );
+
+            // If not visited, or visited > 24 hours ago, log it
+            if (!alreadyVisited || (Date.now() - new Date(alreadyVisited.visitedAt)) > 86400000) {
+                // Remove old entry if exists to update timestamp at the front
+                if (alreadyVisited) {
+                    user.profileVisitors = user.profileVisitors.filter(
+                        v => v.visitor.toString() !== currentUserId.toString()
+                    );
+                }
+                user.profileVisitors.push({ visitor: currentUserId, visitedAt: Date.now() });
+                await user.save().catch(err => console.error("Error saving profile visit:", err));
+            }
         }
 
         const publicData = {
@@ -405,4 +443,90 @@ const getPublicProfile = async (req, res) => {
     }
 };
 
-module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes, getPublicProfile };
+// Get profile visitors (Premium/Prestige Only)
+const getProfileVisitors = async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.user._id).populate('plan');
+        const canSeeVisitors = ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
+
+        if (!canSeeVisitors) {
+            return res.status(403).json({ success: false, message: "Passez à un forfait Premium ou Prestige pour voir qui a visité votre profil." });
+        }
+
+        const userWithVisitors = await User.findById(req.user._id)
+            .populate('profileVisitors.visitor', 'name photo bio age location gender')
+            .lean();
+
+        // Filter out deleted users and sort by date desc
+        const visitors = userWithVisitors.profileVisitors
+            .filter(v => v.visitor)
+            .sort((a, b) => b.visitedAt - a.visitedAt);
+
+        res.json({ success: true, visitors });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Erreur lors de la récupération des visiteurs", error: err.message });
+    }
+};
+
+// Super Like a User
+const superLikeUser = async (req, res) => {
+    try {
+        const targetId = req.params.id;
+        const currentUserId = req.user._id;
+
+        if (targetId === currentUserId.toString()) {
+            return res.status(400).json({ success: false, message: "Vous ne pouvez pas vous super liker." });
+        }
+
+        const currentUser = await User.findById(currentUserId).populate('plan');
+        const targetUser = await User.findById(targetId);
+
+        if (!targetUser) return res.status(404).json({ success: false, message: "Utilisateur non trouvé." });
+
+        if (!['Premium', 'Prestige'].includes(currentUser.plan?.tier)) {
+            return res.status(403).json({ success: false, message: "Les Super Likes sont réservés aux membres Premium et Prestige." });
+        }
+
+        // Check and reset quota if a week has passed
+        const now = new Date();
+        if (!currentUser.superLikeQuotaResetAt || currentUser.superLikeQuotaResetAt < now) {
+            currentUser.superLikeQuotaResetAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week
+            currentUser.superLikeQuota = currentUser.plan?.tier === 'Prestige' ? 6 : 3;
+        }
+
+        if (currentUser.superLikeQuota <= 0) {
+            return res.status(400).json({ success: false, message: "Vous n'avez plus de Super Likes pour le moment." });
+        }
+
+        if (currentUser.superLikes.includes(targetId) || currentUser.likes.includes(targetId)) {
+            return res.json({ success: true, message: "Déjà liké ou super liké." });
+        }
+
+        // Proceed with super like
+        currentUser.superLikeQuota -= 1;
+        currentUser.superLikes.push(targetId);
+        currentUser.likes.push(targetId); // A super like is also a like
+        targetUser.superLikesReceived.push(currentUserId);
+        targetUser.likedBy.push(currentUserId);
+
+        let isMatch = false;
+        if (targetUser.likes.includes(currentUserId) || targetUser.superLikes.includes(currentUserId)) {
+            isMatch = true;
+            currentUser.matches.push(targetId);
+            targetUser.matches.push(currentUserId);
+        }
+
+        await currentUser.save();
+        await targetUser.save();
+
+        res.json({ 
+            success: true, 
+            isMatch, 
+            message: isMatch ? "C'est un match ! Vous l'avez Super Liké ⭐" : "Super Like envoyé ! ⭐"
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Erreur lors du super like", error: err.message });
+    }
+};
+
+module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes, getPublicProfile, getProfileVisitors, superLikeUser };

@@ -98,7 +98,15 @@ const userSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     matches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    passed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    passed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    profileVisitors: [{
+        visitor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        visitedAt: { type: Date, default: Date.now }
+    }],
+    superLikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    superLikesReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    superLikeQuota: { type: Number, default: 0 },
+    superLikeQuotaResetAt: { type: Date, default: null }
 }, { timestamps: true });
 
 userSchema.index({ locationCoords: '2dsphere' });

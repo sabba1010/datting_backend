@@ -6,53 +6,111 @@ dotenv.config();
 
 const plans = [
     {
-        name: 'Free Registration',
+        name: 'Gratuit',
+        tier: 'Free',
         price: 0,
         duration: 99,
         durationUnit: 'year',
         features: [
-            'Basic account creation',
-            'Create profile',
-            'Browse limited profiles'
+            'Basic profile create',
+            'Browse profiles',
+            'Limited search',
+            'Receive messages',
+            'Like profiles'
         ],
         priority: 1
     },
     {
-        name: 'Weekly Plan',
-        price: 9.90,
+        name: 'Essentiel (Mensuel)',
+        tier: 'Essentiel',
+        price: 24.99,
         duration: 1,
-        durationUnit: 'week',
+        durationUnit: 'month',
         features: [
-            'Unlock messaging',
-            'Unlimited profile views',
-            'Basic matching features'
+            'Unlimited profile browsing',
+            'See who liked you',
+            'Read all messages',
+            'No ads',
+            'Revisit previous profiles'
         ],
         priority: 2
     },
     {
-        name: 'Monthly Plan',
-        price: 24.90,
-        duration: 1,
+        name: 'Essentiel (6 Mois)',
+        tier: 'Essentiel',
+        price: 89.94, // 14.99 * 6
+        duration: 6,
         durationUnit: 'month',
         features: [
-            'All weekly features',
-            'Priority profile visibility',
-            'Advanced matching filters'
+            'Unlimited profile browsing',
+            'See who liked you',
+            'Read all messages',
+            'No ads',
+            'Revisit previous profiles'
         ],
         priority: 3
     },
     {
-        name: '6-Month Plan',
-        price: 49.90,
+        name: 'Premium (Mensuel)',
+        tier: 'Premium',
+        price: 29.99,
+        duration: 1,
+        durationUnit: 'month',
+        features: [
+            'Unlimited messaging',
+            'See who visited your profile',
+            'Advanced search filters',
+            'See all search results',
+            '3 Super Likes per week',
+            'Message read receipts'
+        ],
+        priority: 4
+    },
+    {
+        name: 'Premium (6 Mois)',
+        tier: 'Premium',
+        price: 119.94, // 19.99 * 6
         duration: 6,
         durationUnit: 'month',
         features: [
-            'All premium features',
-            'Priority ranking in search',
             'Unlimited messaging',
-            'Advanced filters and boosts'
+            'See who visited your profile',
+            'Advanced search filters',
+            'See all search results',
+            '3 Super Likes per week',
+            'Message read receipts'
         ],
-        priority: 4
+        priority: 5
+    },
+    {
+        name: 'Prestige VIP (Mensuel)',
+        tier: 'Prestige',
+        price: 44.99,
+        duration: 1,
+        durationUnit: 'month',
+        features: [
+            'All Premium features',
+            '6 Super Likes per week',
+            'Profile priority in search',
+            'Profile highlight',
+            'Higher visibility'
+        ],
+        priority: 6
+    },
+    {
+        name: 'Prestige VIP (6 Mois)',
+        tier: 'Prestige',
+        price: 179.94, // 29.99 * 6
+        duration: 6,
+        durationUnit: 'month',
+        features: [
+            'All Premium features',
+            '6 Super Likes per week',
+            'Profile priority in search',
+            'Profile highlight',
+            'Higher visibility'
+        ],
+        priority: 7
     }
 ];
 

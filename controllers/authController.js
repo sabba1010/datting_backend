@@ -135,7 +135,7 @@ const register = async (req, res) => {
 
         // Assign default Free plan
         const Plan = require('../models/Plan');
-        const freePlan = await Plan.findOne({ name: 'Free Registration' });
+        const freePlan = await Plan.findOne({ tier: 'Free' });
 
         const verificationToken = crypto.randomBytes(32).toString('hex');
 
