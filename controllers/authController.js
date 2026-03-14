@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendVerificationEmail } = require('../utils/emailUtils');
+const emailValidator = require('deep-email-validator');
 
 const generateToken = (userId) => {
     const secret = process.env.JWT_SECRET || 'your_fallback_secret_key_123';
@@ -112,6 +113,16 @@ const register = async (req, res) => {
 
         if (!name || !email || !password) {
             return res.status(400).json({ success: false, message: 'Name, email and password are required.' });
+        }
+
+        // Validate email existence
+        const validationRes = await emailValidator.validate(email);
+        if (!validationRes.valid) {
+            return res.status(400).json({
+                success: false,
+                message: "Cet email n'est pas valide ou n'existe pas.",
+                reason: validationRes.reason
+            });
         }
 
         const existing = await User.findOne({ email });
