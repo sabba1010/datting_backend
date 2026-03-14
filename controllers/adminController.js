@@ -21,10 +21,12 @@ const getDashboardStats = async (req, res) => {
 
         const totalRevenue = planStats.reduce((acc, curr) => acc + curr.revenue, 0);
 
-        // Recent subscribers (users with a paid plan)
-        const freePlan = await Plan.findOne({ price: 0 });
+        // Recent subscribers (users with a paid plan with price > 0)
+        const paidPlans = await Plan.find({ price: { $gt: 0 } }).select('_id');
+        const paidPlanIds = paidPlans.map(p => p._id);
+
         const recentSubscribers = await User.find({
-            plan: { $ne: freePlan ? freePlan._id : null },
+            plan: { $in: paidPlanIds },
             subscriptionStatus: 'active'
         })
             .sort({ updatedAt: -1 })
