@@ -96,7 +96,7 @@ const getMatches = async (req, res) => {
         const { 
             radius, lat, lng, searchLevel, filterCountry, filterDept,
             smoke, alcohol, children, religion, zodiacSign, minHeight, maxHeight,
-            ageMin, ageMax, eyeColor, hairColor, keyword
+            ageMin, ageMax, eyeColor, hairColor, keyword, mode
         } = req.query;
 
         // Exclude users already liked, passed or already matched
@@ -177,37 +177,40 @@ const getMatches = async (req, res) => {
             query.gender = currentUser.lookingFor;
         }
 
-        // 2. FILTER: Bidirectional gender preference (they must WANT YOU too)
-        // Only show users who are looking for the current user's gender OR everyone
-        const bidirectionalGenderQuery = {
-            $or: [
-                { lookingFor: currentUser.gender },
-                { lookingFor: 'everyone' },
-                { lookingFor: '' }, 
-                { lookingFor: { $exists: false } }
-            ]
-        };
+        // Apply strict bidirectional filters only if not in "discover" mode
+        if (mode !== 'discover') {
+            // 2. FILTER: Bidirectional gender preference (they must WANT YOU too)
+            // Only show users who are looking for the current user's gender OR everyone
+            const bidirectionalGenderQuery = {
+                $or: [
+                    { lookingFor: currentUser.gender },
+                    { lookingFor: 'everyone' },
+                    { lookingFor: '' }, 
+                    { lookingFor: { $exists: false } }
+                ]
+            };
 
-        // 3. FILTER: Age range you want
-        const ageRangeQuery = {
-            $or: [
-                { age: { $gte: minAge, $lte: maxAge } },
-                { age: null },
-                { age: { $exists: false } }
-            ]
-        };
+            // 3. FILTER: Age range you want
+            const ageRangeQuery = {
+                $or: [
+                    { age: { $gte: minAge, $lte: maxAge } },
+                    { age: null },
+                    { age: { $exists: false } }
+                ]
+            };
 
-        // 4. FILTER: (PERFECT MATCHING) They must want YOUR age as well
-        // We look at the user's age and check if it fits in their ageRange preference
-        // This is tricky because ageRange is a string like "25-35". 
-        // For simplicity, we skip strict backend filter for this to avoid complex regex in MongoDB query,
-        // but it's better to do it. Let's try a simpler approach: check ageRange string directly if possible,
-        // but users might have different formats. Let's stick to gender and age filters for now and refine score.
+            // 4. FILTER: (PERFECT MATCHING) They must want YOUR age as well
+            // We look at the user's age and check if it fits in their ageRange preference
+            // This is tricky because ageRange is a string like "25-35". 
+            // For simplicity, we skip strict backend filter for this to avoid complex regex in MongoDB query,
+            // but it's better to do it. Let's try a simpler approach: check ageRange string directly if possible,
+            // but users might have different formats. Let's stick to gender and age filters for now and refine score.
 
-        query.$and = [
-            bidirectionalGenderQuery,
-            ageRangeQuery
-        ];
+            query.$and = [
+                bidirectionalGenderQuery,
+                ageRangeQuery
+            ];
+        }
 
         const matches = await User.find(query).select('-password');
 
