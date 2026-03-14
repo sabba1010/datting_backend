@@ -32,8 +32,9 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*', // Adjust this for production
-        methods: ['GET', 'POST']
+        origin: ['http://localhost:5000', 'http://localhost:8080', 'http://localhost:5173', 'https://amour-et-sincerite.com'],
+        methods: ['GET', 'POST'],
+        credentials: true
     }
 });
 
