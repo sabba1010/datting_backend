@@ -106,7 +106,8 @@ const userSchema = new mongoose.Schema({
     superLikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     superLikesReceived: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     superLikeQuota: { type: Number, default: 0 },
-    superLikeQuotaResetAt: { type: Date, default: null }
+    superLikeQuotaResetAt: { type: Date, default: null },
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
 userSchema.index({ locationCoords: '2dsphere' });

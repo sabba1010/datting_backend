@@ -104,11 +104,13 @@ const getMatches = async (req, res) => {
             req.user._id,
             ...(currentUser.likes || []),
             ...(currentUser.passed || []),
-            ...(currentUser.matches || [])
+            ...(currentUser.matches || []),
+            ...(currentUser.blockedUsers || [])
         ];
 
         let query = {
             _id: { $nin: seenUsers },
+            blockedUsers: { $ne: req.user._id } // Also exclude users who blocked ME
         };
 
         // Advanced Filters (Only Premium and Prestige)
@@ -529,4 +531,26 @@ const superLikeUser = async (req, res) => {
     }
 };
 
-module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes, getPublicProfile, getProfileVisitors, superLikeUser };
+// Block a user
+const blockUser = async (req, res) => {
+    try {
+        const targetId = req.params.id;
+        const currentUserId = req.user._id;
+
+        if (targetId === currentUserId.toString()) {
+            return res.status(400).json({ success: false, message: "Vous ne pouvez pas vous bloquer vous-même." });
+        }
+
+        const user = await User.findById(currentUserId);
+        if (!user.blockedUsers.includes(targetId)) {
+            user.blockedUsers.push(targetId);
+            await user.save();
+        }
+
+        res.json({ success: true, message: "Utilisateur bloqué avec succès." });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Erreur lors du blocage de l'utilisateur", error: err.message });
+    }
+};
+
+module.exports = { updateProfile, getMatches, getMe, likeUser, passUser, getMatchesAndLikes, getPublicProfile, getProfileVisitors, superLikeUser, blockUser };
