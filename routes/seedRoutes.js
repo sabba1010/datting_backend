@@ -41,80 +41,41 @@ const PRESTIGE_FEATURES = [
 router.get('/seed-production', async (req, res) => {
     try {
         const plans = [
-            // Essential — 2 durations
             {
-                name: "Essential (6 Mois)",
-                tier: "Essential",
-                price: 149.94,
-                duration: 6,
-                durationUnit: "month",
-                features: ESSENTIAL_FEATURES,
+                name: "Free Registration",
+                tier: "Free",
+                price: 0,
+                duration: 0,
+                durationUnit: "day",
+                features: ["Compte basique", "Profil limité", "Pas de messagerie"],
                 priority: 1
             },
             {
-                name: "Essential (1 Mois)",
-                tier: "Essential",
-                price: 44.99,
+                name: "Weekly Plan",
+                tier: "Subscription",
+                price: 9.90,
                 duration: 1,
-                durationUnit: "month",
-                features: ESSENTIAL_FEATURES,
+                durationUnit: "week",
+                features: ["Messagerie illimitée", "Voir tous les profils", "Matchs de base"],
                 priority: 2
             },
-            // Premium — 3 durations
             {
-                name: "Premium (6 Mois)",
-                tier: "Premium",
-                price: 179.94,
-                duration: 6,
+                name: "Monthly Plan",
+                tier: "Subscription",
+                price: 24.90,
+                duration: 1,
                 durationUnit: "month",
-                features: PREMIUM_FEATURES,
+                features: ["Tout le forfait Weekly", "Visibilité prioritaire", "Filtres avancés"],
                 priority: 3
             },
             {
-                name: "Premium (1 Mois)",
-                tier: "Premium",
-                price: 54.99,
-                duration: 1,
-                durationUnit: "month",
-                features: PREMIUM_FEATURES,
-                priority: 4
-            },
-            {
-                name: "Premium (1 Semaine)",
-                tier: "Premium",
-                price: 29.99,
-                duration: 1,
-                durationUnit: "week",
-                features: PREMIUM_FEATURES,
-                priority: 5
-            },
-            // Prestige — 3 durations
-            {
-                name: "Prestige (6 Mois)",
-                tier: "Prestige",
-                price: 269.94,
+                name: "6-Month Plan",
+                tier: "Subscription",
+                price: 44.90,
                 duration: 6,
                 durationUnit: "month",
-                features: PRESTIGE_FEATURES,
-                priority: 6
-            },
-            {
-                name: "Prestige (1 Mois)",
-                tier: "Prestige",
-                price: 79.99,
-                duration: 1,
-                durationUnit: "month",
-                features: PRESTIGE_FEATURES,
-                priority: 7
-            },
-            {
-                name: "Prestige (1 Semaine)",
-                tier: "Prestige",
-                price: 39.99,
-                duration: 1,
-                durationUnit: "week",
-                features: PRESTIGE_FEATURES,
-                priority: 8
+                features: ["Premium complet", "Classement prioritaire", "Boosts inclus"],
+                priority: 4
             }
         ];
 
