@@ -46,7 +46,7 @@ const updateProfile = async (req, res) => {
         if (department !== undefined) updates.department = department;
         if (city !== undefined) updates.city = city;
 
-        const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
+        const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password').populate('plan');
 
         if (!user) {
             console.error(`[UpdateProfile] User ${req.user._id} not found during update`);
@@ -80,7 +80,10 @@ const updateProfile = async (req, res) => {
             locationCoords: user.locationCoords,
             country: user.country,
             department: user.department,
-            city: user.city
+            city: user.city,
+            plan: user.plan,
+            subscriptionStatus: user.subscriptionStatus,
+            subscriptionExpiry: user.subscriptionExpiry
         };
         res.json({ success: true, user: userResponse });
     } catch (err) {

@@ -156,18 +156,22 @@ const register = async (req, res) => {
         // Generate token for auto-login
         const token = generateToken(user._id);
 
+        const populatedUser = await User.findById(user._id).populate('plan');
+
         res.status(201).json({
             success: true,
             message: 'Compte créé avec succès !',
             token,
             user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                isVerified: user.isVerified,
-                age: user.age,
-                gender: user.gender,
-                plan: user.plan
+                id: populatedUser._id,
+                name: populatedUser.name,
+                email: populatedUser.email,
+                isVerified: populatedUser.isVerified,
+                age: populatedUser.age,
+                gender: populatedUser.gender,
+                plan: populatedUser.plan,
+                subscriptionStatus: populatedUser.subscriptionStatus,
+                subscriptionExpiry: populatedUser.subscriptionExpiry
             }
         });
     } catch (err) {
@@ -199,23 +203,26 @@ const login = async (req, res) => {
         // }
 
         const token = generateToken(user._id);
+        const populatedUser = await User.findById(user._id).populate('plan');
 
         res.json({
             success: true,
             message: 'Logged in successfully!',
             token,
             user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                gender: user.gender,
-                lookingFor: user.lookingFor,
-                photo: user.photo,
-                age: user.age,
-                location: user.location,
-                ageRange: user.ageRange,
-                plan: user.plan,
-                role: user.role
+                id: populatedUser._id,
+                name: populatedUser.name,
+                email: populatedUser.email,
+                gender: populatedUser.gender,
+                lookingFor: populatedUser.lookingFor,
+                photo: populatedUser.photo,
+                age: populatedUser.age,
+                location: populatedUser.location,
+                ageRange: populatedUser.ageRange,
+                plan: populatedUser.plan,
+                role: populatedUser.role,
+                subscriptionStatus: populatedUser.subscriptionStatus,
+                subscriptionExpiry: populatedUser.subscriptionExpiry
             }
         });
     } catch (err) {
