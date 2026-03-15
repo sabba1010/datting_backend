@@ -2,17 +2,53 @@ const express = require('express');
 const router = express.Router();
 const Plan = require('../models/Plan');
 
+const ESSENTIAL_FEATURES = [
+    "Explore unlimited profiles",
+    "Go back to previous profiles",
+    "See who liked your profile",
+    "Read all your received messages",
+    "Browse ad-free"
+];
+
+const PREMIUM_FEATURES = [
+    "Explore unlimited profiles",
+    "Go back to previous profiles",
+    "See who liked your profile",
+    "Read all your received messages",
+    "Browse ad-free",
+    "Send unlimited messages",
+    "See who viewed your profile",
+    "Unlock advanced search filters",
+    "View all profiles in your search",
+    "Send 3 Super Likes per week",
+    "See when your messages are read"
+];
+
+const PRESTIGE_FEATURES = [
+    "Explore unlimited profiles",
+    "Go back to previous profiles",
+    "See who liked your profile",
+    "Read all your received messages",
+    "Browse ad-free",
+    "Send unlimited messages",
+    "See who viewed your profile",
+    "Unlock advanced search filters",
+    "View all profiles in your search",
+    "Send 6 Super Likes per week",
+    "See when your messages are read"
+];
+
 router.get('/seed-production', async (req, res) => {
     try {
         const plans = [
-            // Essential - 2 durations (6 months best price, 1 month recommended)
+            // Essential — 2 durations
             {
                 name: "Essential (6 Mois)",
                 tier: "Essential",
-                price: 149.94,  // 24.99/month
+                price: 149.94,
                 duration: 6,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free"],
+                features: ESSENTIAL_FEATURES,
                 priority: 1
             },
             {
@@ -21,17 +57,17 @@ router.get('/seed-production', async (req, res) => {
                 price: 44.99,
                 duration: 1,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free"],
+                features: ESSENTIAL_FEATURES,
                 priority: 2
             },
-            // Premium - 3 durations
+            // Premium — 3 durations
             {
                 name: "Premium (6 Mois)",
                 tier: "Premium",
-                price: 179.94,  // 29.99/month
+                price: 179.94,
                 duration: 6,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "3 Super Likes per week", "See when your messages are read"],
+                features: PREMIUM_FEATURES,
                 priority: 3
             },
             {
@@ -40,7 +76,7 @@ router.get('/seed-production', async (req, res) => {
                 price: 54.99,
                 duration: 1,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "3 Super Likes per week", "See when your messages are read"],
+                features: PREMIUM_FEATURES,
                 priority: 4
             },
             {
@@ -49,17 +85,17 @@ router.get('/seed-production', async (req, res) => {
                 price: 29.99,
                 duration: 1,
                 durationUnit: "week",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "3 Super Likes per week", "See when your messages are read"],
+                features: PREMIUM_FEATURES,
                 priority: 5
             },
-            // Prestige - 3 durations
+            // Prestige — 3 durations
             {
                 name: "Prestige (6 Mois)",
                 tier: "Prestige",
-                price: 269.94,  // 44.99/month
+                price: 269.94,
                 duration: 6,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "6 Super Likes per week", "See when your messages are read"],
+                features: PRESTIGE_FEATURES,
                 priority: 6
             },
             {
@@ -68,7 +104,7 @@ router.get('/seed-production', async (req, res) => {
                 price: 79.99,
                 duration: 1,
                 durationUnit: "month",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "6 Super Likes per week", "See when your messages are read"],
+                features: PRESTIGE_FEATURES,
                 priority: 7
             },
             {
@@ -77,7 +113,7 @@ router.get('/seed-production', async (req, res) => {
                 price: 39.99,
                 duration: 1,
                 durationUnit: "week",
-                features: ["Explore unlimited profiles", "Go back to previous profiles", "See who liked your profile", "Read all your received messages", "Browse ad-free", "Send unlimited messages", "See who viewed your profile", "Unlock advanced search filters", "View all profiles in your search", "6 Super Likes per week", "See when your messages are read"],
+                features: PRESTIGE_FEATURES,
                 priority: 8
             }
         ];
