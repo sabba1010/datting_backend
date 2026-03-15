@@ -7,14 +7,16 @@ router.get('/seed-production', async (req, res) => {
         const plans = [
             {
                 name: "Free Registration",
+                tier: "Free",
                 price: 0,
-                duration: 0,
-                durationUnit: "day",
-                features: ["Compté basique", "Profil limité", "Pas de messagerie"],
+                duration: 99,
+                durationUnit: "year",
+                features: ["Compte basique", "Profil limité", "Pas de messagerie"],
                 priority: 1
             },
             {
                 name: "Weekly Plan",
+                tier: "Weekly",
                 price: 9.90,
                 duration: 1,
                 durationUnit: "week",
@@ -23,6 +25,7 @@ router.get('/seed-production', async (req, res) => {
             },
             {
                 name: "Monthly Plan",
+                tier: "Monthly",
                 price: 24.90,
                 duration: 1,
                 durationUnit: "month",
@@ -31,6 +34,7 @@ router.get('/seed-production', async (req, res) => {
             },
             {
                 name: "6-Month Plan",
+                tier: "6-Month",
                 price: 49.90,
                 duration: 6,
                 durationUnit: "month",
@@ -41,7 +45,7 @@ router.get('/seed-production', async (req, res) => {
 
         await Plan.deleteMany({});
         await Plan.insertMany(plans);
-        res.json({ success: true, message: "Plans seeded successfully on production!" });
+        res.json({ success: true, message: "Subscription plans seeded successfully on production!", count: plans.length });
     } catch (err) {
         res.status(500).json({ success: false, message: "Seeding failed", error: err.message });
     }
