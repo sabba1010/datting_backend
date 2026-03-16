@@ -52,7 +52,7 @@ router.get('/seed-production', async (req, res) => {
             },
             {
                 name: "Weekly Plan",
-                tier: "Subscription",
+                tier: "Essential",
                 price: 9.90,
                 duration: 1,
                 durationUnit: "week",
@@ -61,20 +61,20 @@ router.get('/seed-production', async (req, res) => {
             },
             {
                 name: "Monthly Plan",
-                tier: "Subscription",
+                tier: "Essential",
                 price: 24.90,
                 duration: 1,
                 durationUnit: "month",
-                features: ["Tout le forfait Weekly", "Visibilité prioritaire", "Filtres avancés"],
+                features: ["Tout le forfait Weekly", "Visibilité prioritaire", "Filtres avancés", "Messagerie illimitée"],
                 priority: 3
             },
             {
                 name: "6-Month Plan",
-                tier: "Subscription",
+                tier: "Essential",
                 price: 44.90,
                 duration: 6,
                 durationUnit: "month",
-                features: ["Premium complet", "Classement prioritaire", "Boosts inclus"],
+                features: ["Premium complet", "Classement prioritaire", "Boosts inclus", "Messagerie illimitée"],
                 priority: 4
             }
         ];
