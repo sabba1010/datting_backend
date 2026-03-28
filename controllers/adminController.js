@@ -55,4 +55,33 @@ const getDashboardStats = async (req, res) => {
     }
 };
 
-module.exports = { getDashboardStats };
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find()
+            .select('-password -likes -likedBy -matches -passed -blockedUsers')
+            .populate('plan', 'name price tier')
+            .sort({ createdAt: -1 });
+
+        res.json({
+            success: true,
+            count: users.length,
+            users: users.map(u => ({
+                id: u._id,
+                name: u.name,
+                email: u.email,
+                gender: u.gender,
+                age: u.age,
+                location: u.location,
+                photo: u.photo,
+                planName: u.plan?.name || 'Free',
+                planTier: u.plan?.tier || 'Free',
+                subscriptionStatus: u.subscriptionStatus,
+                createdAt: u.createdAt
+            }))
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching users', error: err.message });
+    }
+};
+
+module.exports = { getDashboardStats, getAllUsers };
