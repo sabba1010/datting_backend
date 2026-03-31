@@ -2,7 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendVerificationEmail } = require('../utils/emailUtils');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../utils/emailUtils');
 const emailValidator = require('deep-email-validator');
 
 const generateToken = (userId) => {
@@ -46,15 +46,12 @@ const forgotPassword = async (req, res) => {
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        // In a real app, send actual email. For now, we'll return the token or just a success message.
-        // The user asked for the option, so I'll implement the logic.
-        console.log(`[AUTH] Reset Link: https://amour-et-sincerite.com//reset-password/${resetToken}`);
+        // Send actual email
+        await sendPasswordResetEmail(user.email, resetToken);
 
         res.json({
             success: true,
-            message: 'Un lien de réinitialisation a été envoyé (vérifiez la console du serveur).',
-            // Return token for development/demo purposes if no email setup
-            debugToken: resetToken
+            message: 'Un lien de réinitialisation a été envoyé à votre adresse email.',
         });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Erreur forgot password', error: err.message });
