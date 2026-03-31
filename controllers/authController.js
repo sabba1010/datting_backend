@@ -54,7 +54,12 @@ const forgotPassword = async (req, res) => {
             message: 'Un lien de réinitialisation a été envoyé à votre adresse email.',
         });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Erreur forgot password', error: err.message });
+        console.error('[AUTH] Forgot Password Error:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur lors de l\'envoi de l\'email. Vérifiez la configuration SMTP.', 
+            error: err.message 
+        });
     }
 };
 
