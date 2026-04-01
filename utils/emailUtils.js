@@ -22,12 +22,12 @@ const sendVerificationEmail = async (email, token) => {
         const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email/${token}`;
 
         const mailOptions = {
-            from: `"Find Your Spark" <${process.env.EMAIL_USER}>`,
+            from: `"Amour Et Sincerité" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Vérifiez votre adresse email',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-                    <h2 style="color: #ff4757; text-align: center;">Bienvenue sur Find Your Spark !</h2>
+                    <h2 style="color: #ff4757; text-align: center;">Bienvenue sur Amour Et Sincerité !</h2>
                     <p>Merci de vous être inscrit. Pour commencer votre aventure, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :</p>
                     <div style="text-align: center; margin: 30px 0;">
                         <a href="${verificationUrl}" style="background-color: #ff4757; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">Confirmer mon email</a>
@@ -58,7 +58,7 @@ const sendPasswordResetEmail = async (email, token) => {
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
 
         const mailOptions = {
-            from: `"Find Your Spark" <${process.env.EMAIL_USER}>`,
+            from: `"Amour Et Sincerité" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Réinitialisation de votre mot de passe',
             html: `
@@ -72,7 +72,7 @@ const sendPasswordResetEmail = async (email, token) => {
                     <p>Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :</p>
                     <p style="word-break: break-all; color: #666;">${resetUrl}</p>
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="font-size: 12px; color: #999; text-align: center;">Find Your Spark - Trouvez l'étincelle.</p>
+                    <p style="font-size: 12px; color: #999; text-align: center;">Amour Et Sincerité - Trouvez l'étincelle.</p>
                 </div>
             `
         };

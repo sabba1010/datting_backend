@@ -34,7 +34,7 @@ const testSMTP = async () => {
         const info = await transporter.sendMail({
             from: `"Test Mail" <${user}>`,
             to: user, // Send to self
-            subject: 'SMTP Test - Find Your Spark',
+            subject: 'SMTP Test - Amour Et Sincerité',
             text: 'This is a test email to verify SMTP configuration.'
         });
 
