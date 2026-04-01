@@ -22,7 +22,7 @@ const sendVerificationEmail = async (email, token) => {
         const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email/${token}`;
 
         const mailOptions = {
-            from: `"Amour Et Sincerité" <${process.env.EMAIL_USER}>`,
+            from: `"Amour Et Sincérité" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Vérifiez votre adresse email',
             html: `
@@ -58,7 +58,7 @@ const sendPasswordResetEmail = async (email, token) => {
         const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${token}`;
 
         const mailOptions = {
-            from: `"Amour Et Sincerité" <${process.env.EMAIL_USER}>`,
+            from: `"Amour Et Sincérité" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: 'Réinitialisation de votre mot de passe',
             html: `

@@ -32,9 +32,9 @@ const testSMTP = async () => {
         console.log('SMTP connection established successfully! ✅');
 
         const info = await transporter.sendMail({
-            from: `"Test Mail" <${user}>`,
+            from: `"Amour Et Sincérité" <${user}>`,
             to: user, // Send to self
-            subject: 'SMTP Test - Amour Et Sincerité',
+            subject: 'SMTP Test - Amour Et Sincérité',
             text: 'This is a test email to verify SMTP configuration.'
         });
 

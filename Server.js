@@ -19,10 +19,27 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB Connected...'))
-    .catch(err => console.error('MongoDB Connection Error:', err));
+// MongoDB Connection & Server Start
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+            dbName: 'datingApp',
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
+        console.log('MongoDB Connected (datingApp)... ✅');
+        
+        // Start Server ONLY after DB connection is successful
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT} 🚀`);
+        });
+    } catch (err) {
+        console.error('MongoDB Connection Error: ❌', err);
+        process.exit(1);
+    }
+};
+
+
 
 // Middleware
 app.use(cors({
@@ -101,9 +118,12 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/seed', require('./routes/seedRoutes'));
 
 // Test routendpoint
+
 app.get('/', (req, res) => {
     res.send('Backend Server is running...');
 });
 
-// Start Server via HTTP server (not Express app)
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Initialize DB and start server
+connectDB();
+
+
