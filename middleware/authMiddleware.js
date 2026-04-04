@@ -12,13 +12,6 @@ const protect = async (req, res, next) => {
         const secret = process.env.JWT_SECRET || 'your_fallback_secret_key_123';
         const decoded = jwt.verify(token, secret);
         const user = await User.findById(decoded.id).select('-password').populate('plan');
-        
-        if (user && user.role === 'admin') {
-            user.subscriptionStatus = 'active';
-            // Ensure admin is always treated as Prestige regardless of actual plan in DB
-            user.plan = { tier: 'Prestige', name: 'Admin Lifetime' };
-        }
-        
         req.user = user;
         next();
     } catch (err) {

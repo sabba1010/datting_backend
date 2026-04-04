@@ -81,8 +81,9 @@ const updateProfile = async (req, res) => {
             country: user.country,
             department: user.department,
             city: user.city,
-            plan: user.plan,
-            subscriptionStatus: user.subscriptionStatus,
+            plan: user.role === 'admin' ? { tier: 'Prestige', name: 'Admin Lifetime' } : user.plan,
+            role: user.role,
+            subscriptionStatus: user.role === 'admin' ? 'active' : user.subscriptionStatus,
             subscriptionExpiry: user.subscriptionExpiry
         };
         res.json({ success: true, user: userResponse });
@@ -297,7 +298,26 @@ const getMatches = async (req, res) => {
 
 // Get current user's profile
 const getMe = async (req, res) => {
-    res.json({ success: true, user: req.user });
+    const user = req.user;
+    if (!user) return res.status(401).json({ success: false, message: 'Non autorisé' });
+
+    const userResponse = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        lookingFor: user.lookingFor,
+        photo: user.photo,
+        age: user.age,
+        location: user.location,
+        ageRange: user.ageRange,
+        plan: user.role === 'admin' ? { tier: 'Prestige', name: 'Admin Lifetime' } : user.plan,
+        role: user.role,
+        subscriptionStatus: user.role === 'admin' ? 'active' : user.subscriptionStatus,
+        subscriptionExpiry: user.subscriptionExpiry
+    };
+
+    res.json({ success: true, user: userResponse });
 };
 
 // Like a user
