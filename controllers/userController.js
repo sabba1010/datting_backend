@@ -222,7 +222,13 @@ const getMatches = async (req, res) => {
             ];
         }
 
-        const matches = await User.find(query).select('-password').populate('plan');
+        // Using .lean() for maximum performance to avoid Mongo document hydration overhead
+        // Adding a 100 result limit to avoid blocking the server event loop during scoring
+        const matches = await User.find(query)
+            .select('-password')
+            .populate('plan')
+            .lean()
+            .limit(100);
 
         // Improved Match Percentage Calculation (The "Perfect" Algorithm)
         const matchesWithPercent = matches.map(u => {

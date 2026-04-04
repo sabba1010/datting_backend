@@ -110,6 +110,13 @@ const userSchema = new mongoose.Schema({
     blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
+userSchema.index({ email: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ gender: 1 });
+userSchema.index({ isVerified: 1 });
+userSchema.index({ country: 1 });
+userSchema.index({ department: 1 });
+userSchema.index({ city: 1 });
 userSchema.index({ locationCoords: '2dsphere' });
 
 module.exports = mongoose.model('User', userSchema);

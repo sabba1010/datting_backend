@@ -55,6 +55,18 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+ 
+ // Performance Monitor Middleware
+ app.use((req, res, next) => {
+     const start = Date.now();
+     res.on('finish', () => {
+         const duration = Date.now() - start;
+         if (duration > 500) { // Log slow requests
+             console.log(`🐢 [SLOW] (${duration}ms) ${req.method} ${req.originalUrl}`);
+         }
+     });
+     next();
+ });
 
 const server = http.createServer(app);
 const io = new Server(server, {
