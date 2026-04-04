@@ -117,7 +117,7 @@ const getMatches = async (req, res) => {
         };
 
         // Advanced Filters (Only Premium and Prestige)
-        const canUseAdvancedFilters = ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
+        const canUseAdvancedFilters = currentUser.role === 'admin' || ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
         
         if (canUseAdvancedFilters) {
             if (smoke) query.smoke = smoke;
@@ -374,7 +374,7 @@ const getMatchesAndLikes = async (req, res) => {
             .populate('likes', 'name photo bio age location gender');
 
         // Free users cannot see who liked them
-        const canSeeLikes = user.plan?.tier !== 'Free';
+        const canSeeLikes = user.role === 'admin' || (user.plan?.tier && user.plan.tier !== 'Free');
         const likedByData = canSeeLikes ? user.likedBy : [];
 
         res.json({
@@ -452,7 +452,7 @@ const getPublicProfile = async (req, res) => {
 const getProfileVisitors = async (req, res) => {
     try {
         const currentUser = await User.findById(req.user._id).populate('plan');
-        const canSeeVisitors = ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
+        const canSeeVisitors = currentUser.role === 'admin' || ['Premium', 'Prestige'].includes(currentUser.plan?.tier);
 
         if (!canSeeVisitors) {
             return res.status(403).json({ success: false, message: "Passez à un forfait Premium ou Prestige pour voir qui a visité votre profil." });
@@ -488,7 +488,7 @@ const superLikeUser = async (req, res) => {
 
         if (!targetUser) return res.status(404).json({ success: false, message: "Utilisateur non trouvé." });
 
-        if (!['Premium', 'Prestige'].includes(currentUser.plan?.tier)) {
+        if (currentUser.role !== 'admin' && !['Premium', 'Prestige'].includes(currentUser.plan?.tier)) {
             return res.status(403).json({ success: false, message: "Les Super Likes sont réservés aux membres Premium et Prestige." });
         }
 

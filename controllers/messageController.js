@@ -11,7 +11,7 @@ const sendMessage = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Receiver ID and text are required' });
         }
 
-        if (!req.user.plan || req.user.plan.tier === 'Free') {
+        if (req.user.role !== 'admin' && (!req.user.plan || req.user.plan.tier === 'Free')) {
             return res.status(403).json({ success: false, message: 'Les utilisateurs gratuits ne peuvent pas envoyer de messages. Veuillez passer à un forfait supérieur pour accéder à la messagerie.' });
         }
 

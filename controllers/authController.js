@@ -171,8 +171,8 @@ const register = async (req, res) => {
                 isVerified: populatedUser.isVerified,
                 age: populatedUser.age,
                 gender: populatedUser.gender,
-                plan: populatedUser.plan,
-                subscriptionStatus: populatedUser.subscriptionStatus,
+                plan: populatedUser.role === 'admin' ? { tier: 'Prestige', name: 'Admin Lifetime' } : populatedUser.plan,
+                subscriptionStatus: populatedUser.role === 'admin' ? 'active' : populatedUser.subscriptionStatus,
                 subscriptionExpiry: populatedUser.subscriptionExpiry
             }
         });
@@ -221,9 +221,9 @@ const login = async (req, res) => {
                 age: populatedUser.age,
                 location: populatedUser.location,
                 ageRange: populatedUser.ageRange,
-                plan: populatedUser.plan,
+                plan: populatedUser.role === 'admin' ? { tier: 'Prestige', name: 'Admin Lifetime' } : populatedUser.plan,
                 role: populatedUser.role,
-                subscriptionStatus: populatedUser.subscriptionStatus,
+                subscriptionStatus: populatedUser.role === 'admin' ? 'active' : populatedUser.subscriptionStatus,
                 subscriptionExpiry: populatedUser.subscriptionExpiry
             }
         });
