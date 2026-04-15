@@ -200,6 +200,10 @@ const login = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials.' });
         }
 
+        if (user.isSuspended) {
+            return res.status(403).json({ success: false, message: "Votre compte a été suspendu par l'administrateur." });
+        }
+
         // if (!user.isVerified) {
         //     return res.status(403).json({ success: false, message: 'Veuillez vérifier votre email avant de vous connecter.' });
         // }

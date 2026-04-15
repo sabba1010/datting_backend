@@ -76,6 +76,7 @@ const getAllUsers = async (req, res) => {
                 planName: u.plan?.name || 'Free',
                 planTier: u.plan?.tier || 'Free',
                 subscriptionStatus: u.subscriptionStatus,
+                isSuspended: u.isSuspended,
                 createdAt: u.createdAt
             }))
         });
@@ -84,4 +85,43 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-module.exports = { getDashboardStats, getAllUsers };
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+        }
+        if (user.role === 'admin') {
+            return res.status(403).json({ success: false, message: 'Impossible de supprimer un administrateur' });
+        }
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Utilisateur supprimé avec succès' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur lors de la suppression', error: err.message });
+    }
+};
+
+const toggleSuspendUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
+        }
+        if (user.role === 'admin') {
+            return res.status(403).json({ success: false, message: 'Impossible de suspendre un administrateur' });
+        }
+        
+        user.isSuspended = !user.isSuspended;
+        await user.save();
+        
+        res.json({ 
+            success: true, 
+            message: user.isSuspended ? 'Utilisateur suspendu' : 'Utilisateur réactivé', 
+            isSuspended: user.isSuspended 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Erreur lors de la suspension', error: err.message });
+    }
+};
+
+module.exports = { getDashboardStats, getAllUsers, deleteUser, toggleSuspendUser };
