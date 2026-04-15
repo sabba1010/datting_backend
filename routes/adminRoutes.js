@@ -10,3 +10,6 @@ router.delete('/users/:id', protect, admin, deleteUser);
 router.put('/users/:id/suspend', protect, admin, toggleSuspendUser);
 
 module.exports = router;
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+
